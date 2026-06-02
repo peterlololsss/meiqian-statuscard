@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CEAC Scriptable Preview</title>
+  <style>
+    :root {
+      --bg: #f3f6fa;
+      --navy: #0f2538;
+      --muted: #6b7b8d;
+      --soft: #edf4fb;
+      --blue: #0a66c2;
+      --steel: #4f6678;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: start center;
+      background: #d8dde5;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif;
+      color: #203144;
+    }
+
+    .phone {
+      width: 393px;
+      min-height: 852px;
+      background: #fff;
+      overflow: hidden;
+      box-shadow: 0 18px 60px rgba(15, 37, 56, 0.22);
+    }
+
+    .status {
+      height: 54px;
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      padding: 0 36px 8px 40px;
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: 0.01em;
+      color: #03070d;
+    }
+
+    .indicators {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      font-size: 13px;
+    }
+
+    .battery {
+      padding: 1px 5px;
+      border-radius: 7px;
+      background: #36c962;
+      color: #fff;
+      line-height: 17px;
+    }
+
+    .close {
+      height: 44px;
+      padding: 13px 0 0 17px;
+      font-size: 18px;
+      font-weight: 700;
+      color: #0a84ff;
+    }
+
+    .sheet {
+      min-height: 754px;
+      background: var(--bg);
+      padding: 20px 22px 0;
+    }
+
+    .header-row {
+      height: 62px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .identity {
+      min-width: 0;
+    }
+
+    .brand {
+      color: #102538;
+      font-size: 22px;
+      line-height: 25px;
+      font-weight: 800;
+    }
+
+    .meta {
+      margin-top: 4px;
+      color: #6b7b8d;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .ids {
+      min-width: 130px;
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .case {
+      color: #102538;
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .passport {
+      margin-top: 4px;
+      color: #6b7b8d;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .captcha-label {
+      height: 28px;
+      display: flex;
+      align-items: center;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.03em;
+    }
+
+    .captcha-card {
+      height: 96px;
+      margin-bottom: 4px;
+      display: grid;
+      place-items: center;
+      border-radius: 18px;
+      background: #fff;
+    }
+
+    .captcha-box {
+      width: 322px;
+      height: 51px;
+      display: grid;
+      place-items: center;
+      border-radius: 13px;
+      background: var(--soft);
+      overflow: hidden;
+    }
+
+    .captcha-img {
+      width: 288px;
+      height: 39px;
+      display: block;
+      background:
+        linear-gradient(100deg, transparent 0 24%, rgba(255,255,255,.5) 24% 25%, transparent 25% 52%, rgba(255,255,255,.35) 52% 53%, transparent 53%),
+        repeating-linear-gradient(4deg, rgba(50,80,105,.6) 0 1px, transparent 1px 8px),
+        #3d3832;
+      color: rgba(255, 255, 255, 0.88);
+      font: 900 34px/39px Georgia, serif;
+      letter-spacing: 0.08em;
+      text-align: center;
+      transform: skewX(-5deg);
+      text-shadow: 1px 1px 0 rgba(0,0,0,.25), -1px 0 0 rgba(255,255,255,.25);
+    }
+
+    .actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      padding: 0;
+    }
+
+    .action {
+      height: 50px;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 20px;
+      font-size: 17px;
+      font-weight: 800;
+    }
+
+    .primary {
+      color: var(--blue);
+    }
+
+    .secondary {
+      color: var(--steel);
+    }
+
+    .settings {
+      height: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--steel);
+      font-size: 15px;
+      font-weight: 750;
+    }
+  </style>
+</head>
+<body>
+  <main class="phone">
+    <section class="status">
+      <div>18:06</div>
+      <div class="indicators">
+        <span>▮▮▮</span>
+        <span>5G</span>
+        <span class="battery">71</span>
+      </div>
+    </section>
+    <div class="close">Close</div>
+    <section class="sheet">
+      <section class="header-row">
+        <div class="identity">
+          <div class="brand">CEAC Beijing</div>
+          <div class="meta">NIV · Beijing</div>
+        </div>
+        <div class="ids">
+          <div class="case">Case ••••1234</div>
+          <div class="passport">Pass •••789</div>
+        </div>
+      </section>
+      <div class="captcha-label">CAPTCHA</div>
+      <section class="captcha-card">
+        <div class="captcha-box">
+          <div class="captcha-img">3U4UJY</div>
+        </div>
+      </section>
+      <section class="actions">
+        <div class="action primary">Enter code</div>
+        <div class="action secondary">New image</div>
+      </section>
+      <div class="settings">Settings</div>
+    </section>
+  </main>
+</body>
+</html>
