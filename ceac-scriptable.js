@@ -45,7 +45,10 @@ const RESULT_IDS = {
   caseNumber: "ctl00_ContentPlaceHolder1_ucApplicationStatusView_lblCaseNo",
   caseCreated: "ctl00_ContentPlaceHolder1_ucApplicationStatusView_lblSubmitDate",
   caseLastUpdated: "ctl00_ContentPlaceHolder1_ucApplicationStatusView_lblStatusDate",
-  message: "ctl00_ContentPlaceHolder1_ucApplicationStatusView_lblMessage",
+  message: [
+    "ctl00_ContentPlaceHolder1_ucApplicationStatusView_postMessage",
+    "ctl00_ContentPlaceHolder1_ucApplicationStatusView_lblMessage",
+  ],
   contactText: "ctl00_ContentPlaceHolder1_ucApplicationStatusView_lnkContactUrl",
 };
 
@@ -387,6 +390,10 @@ function cleanText(value) {
   return htmlDecode(stripTags(value)).replace(/\s+/g, " ").trim();
 }
 
+function escapeRegExp(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 function parseInputs(html) {
   const form = {};
   const inputTags = String(html).match(/<input\b[^>]*>/gi) || [];
@@ -417,18 +424,31 @@ function parseCaptchaUrl(html) {
   return m ? absoluteUrl(m[0]) : "";
 }
 
-function extractResultFields(html) {
-  const wanted = {};
-  for (const key of Object.keys(RESULT_IDS)) wanted[RESULT_IDS[key]] = key;
+function elementById(html, id) {
+  const re = new RegExp(`<([a-z0-9]+)\\b([^>]*\\bid=["']${escapeRegExp(id)}["'][^>]*)>`, "i");
+  const m = re.exec(String(html || ""));
+  if (!m) return null;
 
+  const close = new RegExp(`</${m[1]}>`, "i");
+  const rest = String(html).slice(m.index + m[0].length);
+  const end = close.exec(rest);
+  return {
+    attrs: m[2],
+    body: end ? rest.slice(0, end.index) : "",
+  };
+}
+
+function extractResultFields(html) {
   const fields = {};
-  const re = /<([a-z0-9]+)\b([^>]*\bid=["']([^"']+)["'][^>]*)>([\s\S]*?)<\/\1>/gi;
-  let match;
-  while ((match = re.exec(String(html || "")))) {
-    const key = wanted[match[3]];
-    if (!key) continue;
-    fields[key] = cleanText(match[4]);
-    if (key === "contactText") fields.contactUrl = absoluteUrl(attr(match[2], "href"));
+  for (const key of Object.keys(RESULT_IDS)) {
+    const ids = Array.isArray(RESULT_IDS[key]) ? RESULT_IDS[key] : [RESULT_IDS[key]];
+    for (const id of ids) {
+      const el = elementById(html, id);
+      if (!el) continue;
+      fields[key] = cleanText(el.body);
+      if (key === "contactText") fields.contactUrl = absoluteUrl(attr(el.attrs, "href"));
+      break;
+    }
   }
   return fields;
 }
@@ -466,7 +486,7 @@ function parseResult(html) {
   }
 
   const text = cleanText(html);
-  if (/captcha|code you entered|code as shown|validation/i.test(text)) {
+  if (/captcha|code entered|code you entered|code as shown|validation/i.test(text)) {
     return {
       status: "Captcha failed",
       caseNumber: DATA.applicationId,
@@ -547,14 +567,7 @@ async function startCeacSession() {
 }
 
 async function refreshCaptcha(session) {
-  const page = await loadString(CEAC_URL);
-  const html = page.text;
-  const form = parseInputs(html);
-  addKnownFields(form);
-  const captchaUrl = parseCaptchaUrl(html);
-  if (!captchaUrl) throw new Error("New captcha image was not found.");
-  const captchaImage = await loadImage(captchaUrl);
-  return { html, form, captchaUrl, captchaImage };
+  return startCeacSession();
 }
 
 async function submitCaptcha(session, captcha) {
